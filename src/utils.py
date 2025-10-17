@@ -13,7 +13,8 @@ from typing import Dict, Any, List, Optional
 # Download NLTK data (should run once)
 try:
     nltk.data.find('corpora/stopwords')
-except nltk.downloader.DownloadError:
+except Exception as e:
+    print(f"Error finding corpora/stopwords: {e}, defaulting to download stopwords")
     nltk.download('stopwords', quiet=True)
 try:
     nltk.data.find('corpora/wordnet')
