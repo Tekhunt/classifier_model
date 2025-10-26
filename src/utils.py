@@ -34,61 +34,6 @@ vectorizer: Optional[TfidfVectorizer] = None
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
-# def preprocess_text(text: str) -> str:
-#     """Clean and preprocess text"""
-#     text = str(text).lower()
-#     text = re.sub(r'http\S+|www\S+|https\S+', '', text)
-#     text = re.sub(r'<.*?>', '', text)
-#     text = re.sub(r'[^a-zA-Z\s]', '', text)
-#     text = re.sub(r'\s+', ' ', text).strip()
-#     words = text.split()
-#     words = [lemmatizer.lemmatize(word) for word in words
-#              if word not in stop_words and len(word) > 2]
-#     return ' '.join(words)
-
-# def train_model() -> float:
-#     """Train the sentiment analysis model"""
-#     global model, vectorizer
-    
-#     print("Training sentiment analysis model...")
-    
-#     # Load data or create sample data
-#     try:
-#         df = pd.read_csv('amazonreviews.tsv', sep='\t', encoding='utf-8')
-#     except:
-#         print("Creating sample dataset...")
-#         sample_data = {
-#             'review': ["This product is amazing!", "Terrible quality", "It's okay"] * 100,
-#             'label': ['pos', 'neg', 'pos'] * 100
-#         }
-#         df = pd.DataFrame(sample_data)
-    
-#     df['clean_review'] = df['review'].apply(preprocess_text)
-#     df = df[df['clean_review'].str.len() > 0]
-    
-#     vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
-#     X = vectorizer.fit_transform(df['clean_review'])
-#     y = df['label']
-    
-#     X_train, X_test, y_train, y_test = train_test_split(
-#         X, y, test_size=0.2, random_state=42, stratify=y
-#     )
-    
-#     model = LogisticRegression(max_iter=1000, random_state=42)
-#     model.fit(X_train, y_train)
-    
-#     accuracy = model.score(X_test, y_test)
-#     print(f"Model trained with accuracy: {accuracy:.2f}")
-    
-#     # Save model and vectorizer
-#     with open('sentiment_model.pkl', 'wb') as f:
-#         pickle.dump(model, f)
-#     with open('vectorizer.pkl', 'wb') as f:
-#         pickle.dump(vectorizer, f)
-    
-#     return accuracy
-
-
 
 
 lemmatizer = WordNetLemmatizer()
