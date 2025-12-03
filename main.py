@@ -1,5 +1,5 @@
 """
-main.py - Main FastAPI Application
+main.py - Main FastAPI Application with Authentication
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 import logging
 
 from config import settings
+from src.routers import agentic_bot, auth  # Add auth import
 from src.models import get_db_context, db_manager
-# from src.routers.analysis 
 from src.routers import analysis, reviews, statistics, system
 from src.utils import load_sample_reviews
 from src.ml_models import sentiment_analyzer, SentimentAnalyzer
@@ -20,81 +20,80 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for startup and shutdown events
-    """
-    # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
-    
-    # Load or train model
-    if not sentiment_analyzer.load_model():
-        logger.info("No saved model found, training new model...")
-        result = sentiment_analyzer.train_model()
-        if result['status'] == 'success':
-            logger.info(f"Model trained successfully - Accuracy: {result['metrics']['accuracy']:.4f}")
-        else:
-            logger.warning("Model training failed, API will train on first request")
-    
-    # Load sample reviews into database if empty
+
+    # 1. Load or train sentiment model
+    model_loaded = sentiment_analyzer.load_model()
+    loaded = sentiment_analyzer.load_model()
+    print("Model loaded:", loaded)
+    if not model_loaded:
+        logger.info("No saved model found — training new model...")
+        try:
+            sentiment_analyzer.train_model()
+            logger.info("Model trained successfully.")
+        except Exception as e:
+            logger.error(f"Error during model training: {e}")
+
+    # 2. Ensure admin user exists
     with get_db_context() as db:
-        stats = db_manager.get_statistics(db)
-        if stats['total'] == 0:
-            logger.info("Loading sample reviews...")
-            sample_reviews = load_sample_reviews()[:5]  # Load first 5 samples
-            for text in sample_reviews:
-                try:
-                    prediction = sentiment_analyzer.predict(text)
-                    db_manager.add_review(
-                        db=db,
-                        text=text,
-                        sentiment=prediction['sentiment'],
-                        confidence=prediction['confidence'],
-                        probabilities=prediction['probabilities']
-                    )
-                except Exception as e:
-                    logger.error(f"Error adding sample review: {e}")
-            logger.info(f"Loaded {len(sample_reviews)} sample reviews")
-    
+        from src.models import User, DatabaseManager
+        user_count = db.query(User).count()
+
+        if user_count == 0:
+            logger.info("Creating default admin user...")
+            try:
+                admin_user = DatabaseManager.create_user(
+                    db=db,
+                    email="admin@example.com",
+                    username="admin",
+                    password="admin123",
+                    full_name="System Administrator"
+                )
+                logger.info(f"Admin user created: {admin_user.username}")
+            except Exception as e:
+                logger.error(f"Error creating admin user: {e}")
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down application...")
+
 
 # Create FastAPI application
 app = FastAPI(
     title=settings.app_name,
-    description="Advanced sentiment analysis API for product reviews using machine learning",
+    description="Advanced sentiment analysis API with authentication",
     version=settings.app_version,
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=settings.cors_allow_credentials,
-    allow_methods=settings.cors_allow_methods,
-    allow_headers=settings.cors_allow_headers,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(system.router)
-app.include_router(analysis.router)
-app.include_router(reviews.router)
-app.include_router(statistics.router)
-
-# Root endpoint is in system router
+app.include_router(system.router)  # Public endpoints
+app.include_router(auth.router)    # Authentication endpoints (NEW)
+app.include_router(analysis.router)  # Protected endpoints
+app.include_router(reviews.router)   # Protected endpoints
+app.include_router(statistics.router)  # Protected endpoints
+app.include_router(agentic_bot.router)  # Protected endpoints
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "main:app",
         host=settings.host,
-        port=settings.port,
+        port=8000,
         reload=settings.reload,
         log_level=settings.log_level
     )

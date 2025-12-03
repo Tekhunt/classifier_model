@@ -51,14 +51,43 @@ class SentimentAnalyzer:
             self.is_trained = False
             self.model_metrics = {}
             self.initialized = True
+
+    # def load_model(self) -> bool:
+    #     """
+    #     Load saved model and vectorizer from disk.
+    #     Returns True if loaded, False otherwise.
+    #     """
+    #     try:
+    #         print(f"(settings.model_path: {settings.model_path})")
+    #         print(f"(settings.vectorizer_path: {settings.vectorizer_path})")
+    #         if os.path.exists(settings.model_path) and os.path.exists(settings.vectorizer_path):
+    #             with open(settings.vectorizer_path, 'rb') as f:
+    #                 self.vectorizer = load(f)
+
+    #             with open(settings.model_path, 'rb') as f:
+    #                 self.model = load(f)
+
+    #             self.is_trained = True
+    #             logger.info("✓ Model and vectorizer loaded successfully using joblib.")
+    #             return True
+
+    #         # Files do NOT exist
+    #         logger.error("✗ Model files not found. Expected at: %s and %s",
+    #                     settings.model_path, settings.vectorizer_path)
+    #         return False
+
+    #     except Exception as e:
+    #         logger.error(f"Error loading model with joblib: {e}")
+    #         return False
+
     
     def load_model(self) -> bool:
-        """
-        Load saved model and vectorizer from disk
+    #     """
+    #     Load saved model and vectorizer from disk
         
-        Returns:
-            Success status
-        """
+    #     Returns:
+    #         Success status
+    #     """
         # try:
         #     if os.path.exists(settings.model_path) and os.path.exists(settings.vectorizer_path):
         #         with open(settings.model_path, 'rb') as f:
@@ -74,12 +103,16 @@ class SentimentAnalyzer:
         # except Exception as e:
         #     logger.error(f"Error loading model: {e}")
         #     return False
+
+        vectorizer_path='models/vectorizer.pkl'
+        model_path='models/classifier.pkl'
         
         try:
-            if os.path.exists(settings.model_path) and os.path.exists(settings.vectorizer_path):
-                with open(settings.vectorizer_path, 'rb') as f:
+            # if os.path.exists(settings.model_path) and os.path.exists(settings.vectorizer_path):
+            if os.path.exists(model_path) and os.path.exists(vectorizer_path):
+                with open(vectorizer_path, 'rb') as f:
                     self.vectorizer = load(f)  # Changed pickle.load to joblib.load
-                with open(settings.model_path, 'rb') as f:
+                with open(model_path, 'rb') as f:
                     self.model = load(f)  # Changed pickle.load to joblib.load
                 self.is_trained = True
                 logger.info("Model and vectorizer loaded successfully using joblib.")
