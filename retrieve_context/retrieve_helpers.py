@@ -58,7 +58,7 @@ class ContextStoreDB:
 
 def create_prompt(document: str, question) -> ChatPromptTemplate:
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         temperature=0.7,
         max_tokens=None,
         timeout=None,
