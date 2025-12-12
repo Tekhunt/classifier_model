@@ -168,7 +168,7 @@ async def chat_endpoint(
     Main chat endpoint - processes user questions with context retrieval (Protected)
     
     ## Description
-    This endpoint processes user questions about LLM Guardrails using the context_store knowledge base.
+    This endpoint processes user questions about LLM TechGadgets using the context_store knowledge base.
     Each user has their own conversation history managed by user_id.
     
     ## Authentication
@@ -187,7 +187,7 @@ async def chat_endpoint(
     ## Example
 ```json
     {
-        "question": "What are LLM Guardrails?"
+        "question": "What products are available?"
     }
 ```
     """
