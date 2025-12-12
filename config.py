@@ -46,7 +46,7 @@ class Settings:
     max_iter: int = int(os.getenv("MAX_ITER", 1000))
 
     # Database Settings
-    database_url: Optional[str] = os.getenv("DATABASE_URL", "sqlite:///./sentiment_analysis.db")
+    database_url: Optional[str] = os.getenv("DATABASE_URL", "sqlite:///./sentimentDB.db")
     use_sqlite: bool = os.getenv("USE_SQLITE", "True").lower() == "true"
 
     # Logging

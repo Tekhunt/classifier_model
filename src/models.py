@@ -31,7 +31,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 # Database Setup
 # -------------------
 
-DATABASE_URL = settings.database_url or "sqlite:///./sentiment_analysis.db"
+DATABASE_URL = settings.database_url or "sqlite:///./sentimentDB.db"
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
